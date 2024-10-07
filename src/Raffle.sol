@@ -24,6 +24,7 @@
 pragma solidity 0.8.19;
 
 import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
+import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
 /**
  * @title Raffle
@@ -39,6 +40,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     address payable[] private s_players;
     uint256 private immutable i_interval;
     uint256 private s_lastTimeStamp;
+    bytes32 private immutable i_keyHash;
 
     /* Events */
 
@@ -47,11 +49,13 @@ contract Raffle is VRFConsumerBaseV2Plus {
     constructor(
         uint256 _entranceFee,
         uint256 _interval,
-        address vrfCoordinator
+        address vrfCoordinator,
+        bytes32 _gasLane /*key hash*/
     ) VRFConsumerBaseV2Plus(vrfCoordinator) {
         i_entranceFee = _entranceFee;
         i_interval = _interval;
         s_lastTimeStamp = block.timestamp;
+        i_keyHash = _gasLane;
     }
 
     function enter() public payable {
@@ -70,13 +74,19 @@ contract Raffle is VRFConsumerBaseV2Plus {
         // check to see if enough time has passed
         if (block.timestamp - s_lastTimeStamp < i_interval) revert();
 
-        // uint256 requestId = COORDINATOR.requestRandomWords(
-        //     keyHash,
-        //     s_subscriptionId,
-        //     requestConfirmations,
-        //     callbackGasLimit,
-        //     numWords
-        // );
+        uint256 requestId = s_vrfCoordinator.requestRandomWords(
+            VRFV2PlusClient.RandomWordsRequest({
+                keyHash: i_keyHash,
+                subId: s_subscriptionId,
+                requestConfirmations: requestConfirmations,
+                callbackGasLimit: callbackGasLimit,
+                numWords: numWords,
+                extraArgs: VRFV2PlusClient._argsToBytes(
+                    // Set nativePayment to true to pay for VRF requests with Sepolia ETH instead of LINK
+                    VRFV2PlusClient.ExtraArgsV1({nativePayment: false})
+                )
+            })
+        );
     }
 
     function fulfillRandomWords(
