@@ -23,6 +23,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
+import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
+
 /**
  * @title Raffle
  * @author Bowtied HarpyEagle
@@ -30,7 +32,7 @@ pragma solidity 0.8.19;
  * @notice This is a simple provably fair lottery contract
  */
 
-contract Raffle {
+contract Raffle is VRFConsumerBaseV2Plus {
     error Raffle__SendMoretoEnterRaffle();
 
     uint256 private immutable i_entranceFee;
@@ -42,7 +44,11 @@ contract Raffle {
 
     event RaffleEntered(address indexed player);
 
-    constructor(uint256 _entranceFee, uint256 _interval) {
+    constructor(
+        uint256 _entranceFee,
+        uint256 _interval,
+        address vrfCoordinator
+    ) VRFConsumerBaseV2Plus(vrfCoordinator) {
         i_entranceFee = _entranceFee;
         i_interval = _interval;
         s_lastTimeStamp = block.timestamp;
@@ -60,11 +66,23 @@ contract Raffle {
         emit RaffleEntered(msg.sender);
     }
 
-    function pickWinner() public {
-        if (block.timestamp - s_lastTimeStamp < i_interval) {
-            revert("Raffle__RaffleNotOver");
-        }
+    function pickWinner() external {
+        // check to see if enough time has passed
+        if (block.timestamp - s_lastTimeStamp < i_interval) revert();
+
+        // uint256 requestId = COORDINATOR.requestRandomWords(
+        //     keyHash,
+        //     s_subscriptionId,
+        //     requestConfirmations,
+        //     callbackGasLimit,
+        //     numWords
+        // );
     }
+
+    function fulfillRandomWords(
+        uint256 requestId,
+        uint256[] calldata randomWords
+    ) internal virtual override {}
 
     /** getter functions */
 
