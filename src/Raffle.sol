@@ -35,14 +35,17 @@ contract Raffle {
 
     uint256 private immutable i_entranceFee;
     address payable[] private s_players;
+    uint256 private immutable i_interval;
+    uint256 private s_lastTimeStamp;
 
     /* Events */
 
     event RaffleEntered(address indexed player);
 
-
-    constructor(uint256 _entranceFee) {
+    constructor(uint256 _entranceFee, uint256 _interval) {
         i_entranceFee = _entranceFee;
+        i_interval = _interval;
+        s_lastTimeStamp = block.timestamp;
     }
 
     function enter() public payable {
@@ -57,7 +60,11 @@ contract Raffle {
         emit RaffleEntered(msg.sender);
     }
 
-    function pickWinner() public {}
+    function pickWinner() public {
+        if (block.timestamp - s_lastTimeStamp < i_interval) {
+            revert("Raffle__RaffleNotOver");
+        }
+    }
 
     /** getter functions */
 
