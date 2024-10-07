@@ -31,13 +31,22 @@ pragma solidity 0.8.19;
  */
 
 contract Raffle {
+    error Raffle__SendMoretoEnterRaffle();
+
     uint256 private immutable i_entranceFee;
 
     constructor(uint256 _entranceFee) {
         i_entranceFee = _entranceFee;
     }
 
-    function enter() public payable {}
+    function enter() public payable {
+        // require(msg.value >= entranceFee, "Raffle__SendMoretoEnterRaffle");
+        /* require(msg.value >= entranceFee, Raffle__SendMoretoEnterRaffle()); 
+        starting with solidity 0.8.26, it is possible to use this syntax */
+        if (msg.value < i_entranceFee) {
+            revert Raffle__SendMoretoEnterRaffle();
+        }
+    }
 
     function pickWinner() public {}
 
