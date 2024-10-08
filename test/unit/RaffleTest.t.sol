@@ -69,4 +69,18 @@ contract RaffleTest is Test {
         //Assert
         raffle.enterRaffle{value: entranceFee}();
     }
+
+    function testDontAllowPlayersToEnterWhenRaffleIsCalculatingWinner() public {
+        //Arrange
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        // wait? no, there are other vm cheat codes: vm.roll, vm.warp
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        raffle.performUpkeep("");
+        //Act - Assert
+        vm.expectRevert(Raffle.Raffle__NotOpen.selector);
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+    }
 }
