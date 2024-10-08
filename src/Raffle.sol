@@ -72,7 +72,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         uint256 _interval,
         address vrfCoordinator,
         bytes32 _gasLane /*key hash*/,
-        uint64 subscriptionId,
+        uint256 subscriptionId,
         uint32 _callbackGasLimit
     ) VRFConsumerBaseV2Plus(vrfCoordinator) {
         i_entranceFee = _entranceFee;
