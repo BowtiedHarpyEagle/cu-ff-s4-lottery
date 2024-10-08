@@ -7,7 +7,6 @@ import {DeployRaffle} from "script/DeployRaffle.s.sol";
 import {HelperConfig} from "script/HelperConfig.s.sol";
 
 contract RaffleTest is Test {
-
     Raffle public raffle;
     HelperConfig public helperConfig;
 
@@ -25,7 +24,16 @@ contract RaffleTest is Test {
         DeployRaffle deployer = new DeployRaffle();
         (raffle, helperConfig) = deployer.deployContract();
 
-        HelperConfig
+        HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
+        entranceFee = config.entranceFee;
+        interval = config.interval;
+        vrfCoordinator = config.vrfCoordinator;
+        gasLane = config.gasLane;
+        callbackGasLimit = config.callbackGasLimit;
+        subscriptionId = config.subscriptionId;
+    }
 
+    function testRaffleStartsInOpenState() public {
+        assert(raffle.getState() == Raffle.RaffleState.OPEN);
     }
 }
