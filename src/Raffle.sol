@@ -84,7 +84,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         s_raffleState = RaffleState.OPEN; // same as RaffleState(0)
     }
 
-    function enter() public payable {
+    function enterRaffle() public payable {
         // require(msg.value >= entranceFee, "Raffle__SendMoretoEnterRaffle");
         /* require(msg.value >= entranceFee, Raffle__SendMoretoEnterRaffle()); 
         starting with solidity 0.8.26, it is possible to use this syntax */
