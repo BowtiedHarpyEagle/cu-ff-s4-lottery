@@ -110,7 +110,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
      * return performData ignored
      */
     function checkUpkeep(
-        bytes calldata /* checkData */
+        bytes memory /* checkData */
     )
         public
         view
@@ -128,8 +128,13 @@ contract Raffle is VRFConsumerBaseV2Plus {
         return (upkeepNeeded, "");
     }
 
-    function pickWinner() external {
+    function performUpkeep(bytes calldata /* performData */) external {
         // check to see if enough time has passed
+
+        (bool upkeepNeeded, ) = checkUpkeep("");
+        if (!upkeepNeeded) {
+            revert Raffle__NotOpen();
+        }
 
         s_raffleState = RaffleState.CALCULATING_WINNER;
 
