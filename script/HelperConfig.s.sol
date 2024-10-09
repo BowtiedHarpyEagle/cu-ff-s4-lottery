@@ -7,7 +7,7 @@ import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VR
 import {LinkToken} from "test/mocks/LinkToken.sol";
 
 abstract contract CodeConstants {
-    uint256 public constant SEPOLIA_NETWORK_ID = 1115511;
+    uint256 public constant SEPOLIA_NETWORK_ID = 11155111;
     uint256 public constant LOCAL_CHAIN_ID = 31337;
 
     //Mock Contract Constants
