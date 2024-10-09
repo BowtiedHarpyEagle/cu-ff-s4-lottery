@@ -41,6 +41,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         uint256 balance,
         uint256 length,
         uint256 raffleState
+        
     );
 
     enum RaffleState {

@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 import {Script} from "forge-std/Script.sol";
 import {Raffle} from "../src/Raffle.sol";
 import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2Mock.sol";
+import {LinkToken} from "test/mocks/LinkToken.sol";
 
 abstract contract CodeConstants {
     uint256 public constant SEPOLIA_NETWORK_ID = 1115511;
@@ -69,13 +70,14 @@ contract HelperConfig is CodeConstants, Script {
             return localNetworkConfig;
         }
 
-        // if not, create it using mock contract
+        // if not, create it using mock contract deployed on anvil
 
         vm.startBroadcast();
         VRFCoordinatorV2Mock vrfCoordinatorMock = new VRFCoordinatorV2Mock(
             MOCK_BASE_FEE,
             MOCK_GAS_PRICE_LINK
         );
+        LinkToken linkToken = new LinkToken();
         vm.stopBroadcast();
 
         localNetworkConfig = NetworkConfig({
@@ -85,8 +87,9 @@ contract HelperConfig is CodeConstants, Script {
             // gas doesn't matter in mock contract
             gasLane: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae,
             callbackGasLimit: 500000, // 500,000 gas
-            subscriptionId: 0 // we may need to fix this later
-        });
+            subscriptionId: 0, // we may need to fix this later
+            link: address(linkToken) }
+        );
 
         return localNetworkConfig;
     }
