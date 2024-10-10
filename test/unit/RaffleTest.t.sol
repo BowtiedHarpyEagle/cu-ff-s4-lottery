@@ -174,5 +174,49 @@ contract RaffleTest is Test {
         VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(raffle));
     }
 
+    function testFulfillRandomWordsPicksAWinnerResetsAndSendsMoney() public raffleEntered {
+        //Arrange
+        //Add 3 more players to the raffle
+        uint256 additionalEntrants = 3; // 4 total players
+        uint256 startingIndex = 1;
+        address expectedWinner = address(1);
+
+        for (uint256 i = startingIndex; i < startingIndex + additionalEntrants; i++) {
+            address newPlayer = address(uint160(i));
+            hoax(newPlayer, 10 ether);
+            raffle.enterRaffle{value: entranceFee}();
+        }
+
+        uint256 startingTimeStamp = raffle.getLastTimeStamp();
+        uint256 winnerStartingBalance = expectedWinner.balance;
+
+        // Act
+        // We need to get the requestId from the fulfillRandomWords to call
+        // VRFCoordinatorV2_5Mock.fulfillRandomWords with the requestId
+
+        vm.recordLogs();
+        raffle.performUpkeep("");
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        bytes32 requestId = entries[1].topics[1];
+        // This line simulates the fulfillRandomWords call from the VRFCoordinator
+        // and passes in the requestId
+        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(uint256(requestId), address(raffle));
+
+        // Assert
+
+        address winner = raffle.getRecentWinner();
+        Raffle.RaffleState raffleState = raffle.getState();
+        uint256 winnerBalance = address(winner).balance;
+        uint256 endingTimeStamp = raffle.getLastTimeStamp();
+        uint256 prize = entranceFee * (additionalEntrants + 1);
+
+        assert(winner == expectedWinner);
+        assert (uint256(raffleState) == 0);
+        assert (winnerBalance == winnerStartingBalance + prize - entranceFee);
+        assert (endingTimeStamp > startingTimeStamp);
+
+    }
+
+
 
 }
