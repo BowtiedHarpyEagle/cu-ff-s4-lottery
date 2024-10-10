@@ -67,6 +67,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     event RaffleEntered(address indexed player);
     event RaffleWinnerPicked(address indexed winner);
+    event ReqestedRaffleWinner(uint256 indexed requestId);
 
     constructor(
         uint256 _entranceFee,
@@ -148,19 +149,23 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
         s_raffleState = RaffleState.CALCULATING_WINNER;
 
-        // VRFV2PlusClient.RandomWordsRequest memory request = VRFV2PlusClient
-        //     .RandomWordsRequest({
-        //         keyHash: i_keyHash,
-        //         subId: i_subscriptionId,
-        //         requestConfirmations: REQUEST_CONFIRMATIONS,
-        //         callbackGasLimit: i_callbackGasLimit,
-        //         numWords: NUM_WORDS,
-        //         extraArgs: VRFV2PlusClient._argsToBytes(
-        //             // Set nativePayment to true to pay for VRF requests with Sepolia ETH instead of LINK
-        //             VRFV2PlusClient.ExtraArgsV1({nativePayment: false})
-        //         )
-        //     });
-        // uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
+        VRFV2PlusClient.RandomWordsRequest memory request = VRFV2PlusClient
+            .RandomWordsRequest({
+                keyHash: i_keyHash,
+                subId: i_subscriptionId,
+                requestConfirmations: REQUEST_CONFIRMATIONS,
+                callbackGasLimit: i_callbackGasLimit,
+                numWords: NUM_WORDS,
+                extraArgs: VRFV2PlusClient._argsToBytes(
+                    // Set nativePayment to true to pay for VRF requests with Sepolia ETH instead of LINK
+                    VRFV2PlusClient.ExtraArgsV1({nativePayment: false})
+                )
+            });
+        uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
+        // Quiz: is this reduntant?
+        // Yes, a little bit. Since VRF Coordinator will also emit RequestedRandomWords event
+        // But with this event we indexed the requestId there it wasn't indexed 
+        emit ReqestedRaffleWinner(requestId);
     }
 
     // CEI: Checks, Effects, Interactions - protects against reenterancy attacks
