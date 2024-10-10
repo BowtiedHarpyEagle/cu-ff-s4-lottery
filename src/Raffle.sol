@@ -160,12 +160,12 @@ contract Raffle is VRFConsumerBaseV2Plus {
                     VRFV2PlusClient.ExtraArgsV1({nativePayment: false})
                 )
             });
-        uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
+        // uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
     }
 
     // CEI: Checks, Effects, Interactions - protects against reenterancy attacks
     function fulfillRandomWords(
-        uint256 requestId,
+        uint256 /*requestId */,
         uint256[] calldata randomWords
     ) internal virtual override {
         //Checks

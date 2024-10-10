@@ -37,7 +37,7 @@ contract CreateSubscription is Script {
 contract FundSubscription is Script, CodeConstants {
     uint256 public constant FUND_AMOUNT = 3 ether; // 3 LINK
 
-    function fundSubscriptionWithConfig() public returns (uint256) {
+    function fundSubscriptionWithConfig() public  {
         HelperConfig helperConfig = new HelperConfig();
         address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
         uint256 subscriptionId = helperConfig.getConfig().subscriptionId;
@@ -49,7 +49,7 @@ contract FundSubscription is Script, CodeConstants {
     function fundSubscription(
         address vrfCoordinator,
         uint256 subscriptionId,
-        address linkToken) public returns (uint256) {
+        address linkToken) public  {
         console.log("Funding subscription ID:", subscriptionId);
         console.log("Using VRF coordinator:", vrfCoordinator);
         console.log("On chain ID:", block.chainid);
@@ -70,11 +70,10 @@ contract FundSubscription is Script, CodeConstants {
 
 contract AddConsumer is Script {
 
-    function addConsumerUsingConfig(address mostRecentlyDeployed) public returns (address) {
+    function addConsumerUsingConfig(address mostRecentlyDeployed) public  {
         HelperConfig helperConfig = new HelperConfig();
         address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
         uint256 subscriptionId = helperConfig.getConfig().subscriptionId;
-        address consumer = helperConfig.getConfig().vrfCoordinator;
         addConsumer(mostRecentlyDeployed, vrfCoordinator, subscriptionId);
     }
 

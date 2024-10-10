@@ -38,7 +38,7 @@ contract RaffleTest is Test {
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 
-    function testRaffleStartsInOpenState() public {
+    function testRaffleStartsInOpenState() public view {
         assert(raffle.getState() == Raffle.RaffleState.OPEN);
     }
 
