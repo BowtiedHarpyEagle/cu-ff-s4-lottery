@@ -8,8 +8,9 @@ import {HelperConfig} from "script/HelperConfig.s.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 import {console2} from "forge-std/console2.sol";
+import {CodeConstants} from "script/HelperConfig.s.sol";
 
-contract RaffleTest is Test {
+contract RaffleTest is Test, CodeConstants {
     Raffle public raffle;
     HelperConfig public helperConfig;
 
@@ -21,7 +22,7 @@ contract RaffleTest is Test {
     uint256 subscriptionId;
 
     address public PLAYER = makeAddr("player");
-    uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
+    uint256 public constant STARTING_PLAYER_BALANCE = 1000 ether;
 
     event RaffleEntered(address indexed player);
     event RaffleWinnerPicked(address indexed winner);
@@ -156,14 +157,23 @@ contract RaffleTest is Test {
      * Test fulfillRandomWords
      */
 
-    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public raffleEntered {
+    modifier skipFork() {
+        if (block.chainid != LOCAL_CHAIN_ID) {
+            return;
+        }
+        _;
+    }
+
+    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) 
+    public raffleEntered skipFork{
         //when test is called with a parameter, fundry tries different random values to find 
         // if any of the values fail the test. This is known as fuzz testing. 
         vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
         VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(raffle));
     }
 
-    function testFulfillRandomWordsPicksAWinnerResetsAndSendsMoney() public raffleEntered {
+    function testFulfillRandomWordsPicksAWinnerResetsAndSendsMoney() 
+    public raffleEntered skipFork{
         //Arrange
         //Add 3 more players to the raffle
         uint256 additionalEntrants = 3; // 4 total players
@@ -189,7 +199,8 @@ contract RaffleTest is Test {
         bytes32 requestId = entries[1].topics[1];
         // This line simulates the fulfillRandomWords call from the VRFCoordinator
         // and passes in the requestId
-        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(uint256(requestId), address(raffle));
+        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(uint256(requestId), 
+        address(raffle));
 
         // Assert
 
@@ -211,7 +222,5 @@ contract RaffleTest is Test {
         assert (endingTimeStamp > startingTimeStamp);
 
     }
-
-
 
 }
