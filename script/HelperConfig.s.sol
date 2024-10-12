@@ -27,6 +27,7 @@ contract HelperConfig is CodeConstants, Script {
         uint32 callbackGasLimit;
         uint256 subscriptionId;
         address link;
+        address account;
     }
 
     NetworkConfig public localNetworkConfig;
@@ -61,7 +62,8 @@ contract HelperConfig is CodeConstants, Script {
                 gasLane: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae,
                 callbackGasLimit: 500000, // 500,000 gas, plenty for testing
                 subscriptionId: 0,
-                link: 0x779877A7B0D9E8603169DdbD7836e478b4624789
+                link: 0x779877A7B0D9E8603169DdbD7836e478b4624789,
+                account: 0xc314f37721AA18C757A17FCf11AEF6914Dc2b45C
             });
     }
 
@@ -90,7 +92,11 @@ contract HelperConfig is CodeConstants, Script {
             gasLane: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae,
             callbackGasLimit: 500000, // 500,000 gas
             subscriptionId: 0, // we may need to fix this later
-            link: address(linkToken) }
+            link: address(linkToken), 
+            // Default sender from forge-std/src/Base.sol 
+            // This way we don't need to pass a private key
+            account: 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38  
+            }
         );
         networkConfigs[LOCAL_CHAIN_ID] = localNetworkConfig;
         return localNetworkConfig;
